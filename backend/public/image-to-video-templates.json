@@ -1,0 +1,272 @@
+{
+  "image_to_video_templates": {
+    "categories": {
+      "basic_actions": {
+        "name": "基础动作",
+        "description": "人物基本动作表现",
+        "templates": [
+          {
+            "id": "speaking",
+            "name": "自然说话",
+            "prompt": "人物自然地说话，嘴唇轻微开合，表情生动，眼神专注，肢体语言自然协调",
+            "tags": ["说话", "对话", "表达"],
+            "difficulty": "简单",
+            "duration": "3-5秒"
+          },
+          {
+            "id": "waving",
+            "name": "友好招手",
+            "prompt": "人物面带微笑，右手轻松自然地向前招手致意，动作优雅流畅，充满亲和力",
+            "tags": ["招手", "问候", "友好"],
+            "difficulty": "简单", 
+            "duration": "2-4秒"
+          },
+          {
+            "id": "nodding",
+            "name": "点头同意",
+            "prompt": "人物面带微笑，轻轻点头表示赞同，动作自然连贯，眼神坚定友善",
+            "tags": ["点头", "同意", "肯定"],
+            "difficulty": "简单",
+            "duration": "2-3秒"
+          },
+          {
+            "id": "smiling",
+            "name": "温暖微笑",
+            "prompt": "人物脸上逐渐浮现温暖的微笑，眼角微微上扬，整体表情自然真诚，充满感染力",
+            "tags": ["微笑", "开心", "温暖"],
+            "difficulty": "简单",
+            "duration": "3-4秒"
+          }
+        ]
+      },
+      "movement_actions": {
+        "name": "移动动作",
+        "description": "人物移动和位置变化",
+        "templates": [
+          {
+            "id": "walking_forward",
+            "name": "向前走路",
+            "prompt": "人物以自然的步伐向前走路，步调稳定，姿态优雅，双手自然摆动，表情轻松",
+            "tags": ["走路", "前进", "移动"],
+            "difficulty": "中等",
+            "duration": "4-6秒"
+          },
+          {
+            "id": "turning_around",
+            "name": "优雅转身",
+            "prompt": "人物缓慢优雅地转身，动作流畅连贯，头部和身体协调转动，展现优美的身姿",
+            "tags": ["转身", "旋转", "优雅"],
+            "difficulty": "中等",
+            "duration": "3-5秒"
+          },
+          {
+            "id": "approaching",
+            "name": "走近镜头",
+            "prompt": "人物从远处缓慢走向镜头，步伐坚定，表情专注，背景逐渐模糊，营造景深效果",
+            "tags": ["走近", "接近", "景深"],
+            "difficulty": "中等",
+            "duration": "5-8秒"
+          },
+          {
+            "id": "stepping_back",
+            "name": "后退离开",
+            "prompt": "人物保持面向镜头，缓慢后退，动作自然，逐渐远离镜头，营造告别的氛围",
+            "tags": ["后退", "离开", "告别"],
+            "difficulty": "中等",
+            "duration": "4-6秒"
+          }
+        ]
+      },
+      "emotional_expressions": {
+        "name": "情感表达",
+        "description": "丰富的情感和表情变化",
+        "templates": [
+          {
+            "id": "happy_laugh",
+            "name": "开心大笑",
+            "prompt": "人物由微笑逐渐转为开心大笑，眼睛眯成月牙形，整个表情充满喜悦和感染力",
+            "tags": ["大笑", "开心", "喜悦"],
+            "difficulty": "中等",
+            "duration": "3-4秒"
+          },
+          {
+            "id": "surprised",
+            "name": "惊讶表情",
+            "prompt": "人物表情从平静突然转为惊讶，眼睛瞪大，嘴巴微张，眉毛上扬，动作自然真实",
+            "tags": ["惊讶", "意外", "震惊"],
+            "difficulty": "中等",
+            "duration": "2-3秒"
+          },
+          {
+            "id": "thinking",
+            "name": "思考状态",
+            "prompt": "人物陷入思考，微微皱眉，手轻抚下巴，眼神专注，展现深思熟虑的状态",
+            "tags": ["思考", "沉思", "专注"],
+            "difficulty": "中等",
+            "duration": "4-5秒"
+          },
+          {
+            "id": "confident",
+            "name": "自信表达",
+            "prompt": "人物挺直身姿，面带自信的笑容，眼神坚定，整体气质从容不迫，充满魅力",
+            "tags": ["自信", "坚定", "魅力"],
+            "difficulty": "中等",
+            "duration": "4-5秒"
+          }
+        ]
+      },
+      "interactive_actions": {
+        "name": "互动动作",
+        "description": "与观众或环境的互动行为",
+        "templates": [
+          {
+            "id": "presenting",
+            "name": "介绍展示",
+            "prompt": "人物面向镜头，一手指向旁边，做介绍手势，表情专业自信，仿佛在介绍产品或概念",
+            "tags": ["介绍", "展示", "指向"],
+            "difficulty": "中等",
+            "duration": "4-6秒"
+          },
+          {
+            "id": "thumbs_up",
+            "name": "点赞鼓励",
+            "prompt": "人物面带微笑，竖起大拇指做点赞手势，动作干净利落，表达认可和鼓励",
+            "tags": ["点赞", "鼓励", "认可"],
+            "difficulty": "简单",
+            "duration": "2-3秒"
+          },
+          {
+            "id": "applauding",
+            "name": "鼓掌称赞",
+            "prompt": "人物开心地拍手鼓掌，面带笑容，动作有节奏感，表达赞赏和支持",
+            "tags": ["鼓掌", "称赞", "支持"],
+            "difficulty": "中等",
+            "duration": "3-4秒"
+          },
+          {
+            "id": "shaking_hands",
+            "name": "握手致意",
+            "prompt": "人物伸出右手做握手姿势，表情友善专业，体现商务或社交场合的礼貌互动",
+            "tags": ["握手", "礼貌", "商务"],
+            "difficulty": "中等",
+            "duration": "3-4秒"
+          }
+        ]
+      },
+      "creative_actions": {
+        "name": "创意动作",
+        "description": "富有创意和艺术性的动作表现",
+        "templates": [
+          {
+            "id": "hair_flip",
+            "name": "撩发动作",
+            "prompt": "人物优雅地用手轻撩头发，动作流畅自然，展现魅力和自信，充满时尚感",
+            "tags": ["撩发", "时尚", "魅力"],
+            "difficulty": "中等",
+            "duration": "3-4秒"
+          },
+          {
+            "id": "dance_move",
+            "name": "轻松舞动",
+            "prompt": "人物随着节奏轻松摆动身体，动作自然协调，表情愉悦，展现活力和青春",
+            "tags": ["舞蹈", "活力", "节奏"],
+            "difficulty": "复杂",
+            "duration": "5-8秒"
+          },
+          {
+            "id": "meditation",
+            "name": "冥想静坐",
+            "prompt": "人物安静地坐着，双手放在膝盖上，表情平静祥和，展现内心的宁静和专注",
+            "tags": ["冥想", "平静", "宁静"],
+            "difficulty": "简单",
+            "duration": "4-6秒"
+          },
+          {
+            "id": "reading",
+            "name": "专注阅读",
+            "prompt": "人物低头专注地阅读，偶尔翻页，表情认真投入，营造知性和学习的氛围",
+            "tags": ["阅读", "学习", "知性"],
+            "difficulty": "中等",
+            "duration": "5-7秒"
+          }
+        ]
+      },
+      "professional_scenes": {
+        "name": "职场场景",
+        "description": "适合商务和职场环境的专业动作",
+        "templates": [
+          {
+            "id": "business_presentation",
+            "name": "商务演讲",
+            "prompt": "人物站立演讲，手势自然配合讲话内容，表情专业自信，体现领导力和专业素养",
+            "tags": ["演讲", "商务", "领导力"],
+            "difficulty": "复杂",
+            "duration": "6-8秒"
+          },
+          {
+            "id": "phone_call",
+            "name": "接听电话",
+            "prompt": "人物举起手机接听电话，表情专注，偶尔点头回应，展现职场沟通场景",
+            "tags": ["电话", "沟通", "职场"],
+            "difficulty": "中等",
+            "duration": "4-5秒"
+          },
+          {
+            "id": "writing_notes",
+            "name": "记录笔记",
+            "prompt": "人物专注地在本子上写字记录，偶尔停笔思考，表情认真，展现工作状态",
+            "tags": ["写字", "记录", "工作"],
+            "difficulty": "中等",
+            "duration": "5-6秒"
+          },
+          {
+            "id": "checking_watch",
+            "name": "查看时间",
+            "prompt": "人物抬起手腕查看手表，表情略显急切或专注，体现时间观念和职场效率",
+            "tags": ["时间", "手表", "效率"],
+            "difficulty": "简单",
+            "duration": "2-3秒"
+          }
+        ]
+      }
+    },
+    "combination_examples": {
+      "name": "组合动作案例",
+      "description": "多个动作的自然组合",
+      "templates": [
+        {
+          "id": "greeting_sequence",
+          "name": "完整问候",
+          "prompt": "人物先微笑，然后友好地招手，最后轻轻点头，整个动作序列自然流畅，充满亲和力",
+          "tags": ["问候", "组合", "流畅"],
+          "difficulty": "复杂",
+          "duration": "6-8秒"
+        },
+        {
+          "id": "presentation_combo",
+          "name": "展示组合",
+          "prompt": "人物首先面向观众微笑，然后转身指向旁边进行介绍，最后回头确认观众理解，动作连贯专业",
+          "tags": ["展示", "专业", "连贯"],
+          "difficulty": "复杂",
+          "duration": "8-10秒"
+        }
+      ]
+    },
+    "technical_tips": {
+      "name": "技术提示",
+      "guidelines": [
+        "动作幅度不宜过大，避免不自然的效果",
+        "表情变化要循序渐进，不要过于突兀",
+        "结合镜头语言，如'特写'、'中景'等",
+        "注意光影配合，如'柔和光线'、'暖色调'",
+        "考虑背景环境，避免过于复杂的场景",
+        "时长控制在2-8秒为宜，过长容易出现不连贯"
+      ],
+      "prompt_structure": {
+        "basic": "主体 + 动作 + 表情",
+        "advanced": "主体 + 动作 + 表情 + 场景 + 镜头语言 + 光影",
+        "example": "优雅的女士 + 轻柔招手 + 温暖微笑 + 简洁背景 + 中景拍摄 + 柔和自然光"
+      }
+    }
+  }
+}

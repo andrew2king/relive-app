@@ -1,0 +1,83 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.sqlite
+*.db
+dev.db
+
+# Uploads and temp files
+uploads/
+temp/
+*.tmp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+
+# Docker
+.docker/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# AI model files
+*.pth
+*.onnx
+*.h5
+experiments/pretrained_models/
+
+# Testing
+coverage/
+.nyc_output
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Prisma
+prisma/dev.db*

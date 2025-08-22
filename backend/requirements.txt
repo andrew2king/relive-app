@@ -1,0 +1,26 @@
+# AI Image Processing Dependencies
+opencv-python==4.8.1.78
+numpy==1.24.3
+Pillow==10.0.1
+scikit-image==0.21.0
+tensorflow==2.13.0
+torch==2.0.1
+torchvision==0.15.2
+
+# Deep Learning Models
+ultralytics==8.0.194
+
+# Image Enhancement
+imageio==2.31.2
+matplotlib==3.7.2
+scipy==1.11.2
+
+# Color Processing
+colorspacious==1.1.2
+
+# GPU Support (optional)
+# tensorflow-gpu==2.13.0
+
+# Utility packages
+tqdm==4.66.1
+requests==2.31.0

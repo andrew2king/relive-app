@@ -1,0 +1,1072 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Camera, Sparkles, Video, Upload, X, Play, Pause, Download, Share2, RotateCcw, ChevronDown, ChevronUp, Wand2, Heart, Smile, Eye, Wind, ArrowLeft, Settings, Zap, Clock, Star, Info } from 'lucide-react';
+
+interface VideoGeneratorProps {
+  uploadedFiles: File[];
+  onBack: () => void;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  prompt: string;
+  description: string;
+  tags: string[];
+  category: string;
+  intensity: 'subtle' | 'normal' | 'strong';
+  duration: string;
+  icon: string;
+  popular?: boolean;
+}
+
+interface VideoSettings {
+  resolution: 'default' | '720p' | '1080p';
+  duration: '3' | '5' | '8' | '10';
+  intensity: 'subtle' | 'normal' | 'strong';
+  fps: '24' | '30' | '60';
+  style: 'natural' | 'artistic' | 'dramatic';
+}
+
+const VideoGenerator: React.FC<VideoGeneratorProps> = ({ uploadedFiles, onBack }) => {
+  const [currentStep, setCurrentStep] = useState<'upload' | 'template' | 'customize' | 'generate' | 'result'>('upload');
+  const [selectedFile, setSelectedFile] = useState<File | null>(uploadedFiles[0] || null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [videoSettings, setVideoSettings] = useState<VideoSettings>({
+    resolution: 'default',
+    duration: '5',
+    intensity: 'normal',
+    fps: '30',
+    style: 'natural'
+  });
+  
+  // 处理状态
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState('');
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [resultVideo, setResultVideo] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [appliedEffect, setAppliedEffect] = useState<string | null>(null);
+  
+  // UI状态
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  // 精选模板数据 - 参考RunwayML, Pika Labs等产品
+  const templates: Template[] = [
+    {
+      id: 'happy_smile',
+      name: '开心大笑',
+      prompt: '人物面带灿烂笑容，眼睛弯成月牙形，自然地开心大笑，表情生动活泼，充满喜悦感',
+      description: '让人物展现真诚的快乐表情，眼神明亮有神',
+      tags: ['表情', '快乐', '自然'],
+      category: 'expression',
+      intensity: 'normal',
+      duration: '3-5秒',
+      icon: '😄',
+      popular: true
+    },
+    {
+      id: 'gentle_nod',
+      name: '轻柔点头',
+      prompt: '人物轻轻点头表示认同，动作优雅自然，眼神坚定友善，整体姿态从容不迫',
+      description: '优雅的点头动作，表达认同和理解',
+      tags: ['动作', '优雅', '认同'],
+      category: 'gesture',
+      intensity: 'subtle',
+      duration: '2-4秒',
+      icon: '👍',
+      popular: true
+    },
+    {
+      id: 'friendly_wave',
+      name: '友好招手',
+      prompt: '人物右手自然地向前招手致意，动作流畅友好，面带微笑，表现出亲和力和热情',
+      description: '温暖的招手问候，展现亲和力',
+      tags: ['招手', '友好', '问候'],
+      category: 'gesture',
+      intensity: 'normal',
+      duration: '3-5秒',
+      icon: '👋',
+      popular: true
+    },
+    {
+      id: 'natural_blink',
+      name: '自然眨眼',
+      prompt: '人物自然地眨眼，眼神生动有神，偶尔眼球轻微转动，表情放松自然',
+      description: '细微的眼部动作，增加照片生动感',
+      tags: ['眼部', '自然', '细微'],
+      category: 'subtle',
+      intensity: 'subtle',
+      duration: '2-3秒',
+      icon: '👁️'
+    },
+    {
+      id: 'hair_flow',
+      name: '发丝飘动',
+      prompt: '人物头发在微风中轻柔飘动，发丝自然摆动，营造动态美感，人物表情保持自然',
+      description: '微风吹动头发的优美效果',
+      tags: ['头发', '微风', '优美'],
+      category: 'ambient',
+      intensity: 'subtle',
+      duration: '4-6秒',
+      icon: '🌬️'
+    },
+    {
+      id: 'clothing_sway',
+      name: '衣物摆动',
+      prompt: '人物衣物在轻风中自然摆动，裙摆或衣角轻柔飘动，整体画面富有动感',
+      description: '衣物在微风中的自然摆动',
+      tags: ['衣物', '摆动', '微风'],
+      category: 'ambient',
+      intensity: 'subtle',
+      duration: '4-8秒',
+      icon: '👗'
+    },
+    {
+      id: 'speaking_motion',
+      name: '自然说话',
+      prompt: '人物自然地说话，嘴唇轻微开合，表情生动，眼神专注，整体动作协调自然',
+      description: '模拟真实的说话动作和表情',
+      tags: ['说话', '表情', '自然'],
+      category: 'expression',
+      intensity: 'normal',
+      duration: '3-6秒',
+      icon: '💬'
+    },
+    {
+      id: 'camera_zoom',
+      name: '镜头缩放',
+      prompt: '画面进行轻微的放大或缩小，营造电影感的视觉效果，人物保持自然状态',
+      description: '电影级的镜头运动效果',
+      tags: ['镜头', '电影感', '缩放'],
+      category: 'camera',
+      intensity: 'normal',
+      duration: '5-8秒',
+      icon: '🎬'
+    },
+    {
+      id: 'parallax_effect',
+      name: '视差效果',
+      prompt: '背景和前景产生轻微的视差移动，创造3D立体感，人物为焦点保持稳定',
+      description: '创造立体感的视差移动效果',
+      tags: ['3D', '立体', '视差'],
+      category: 'camera',
+      intensity: 'normal',
+      duration: '4-6秒',
+      icon: '🌆'
+    },
+    {
+      id: 'vintage_film',
+      name: '复古胶片',
+      prompt: '画面带有轻微的胶片质感晃动，色彩略微偏暖，营造怀旧复古氛围',
+      description: '怀旧胶片的质感和氛围',
+      tags: ['复古', '胶片', '怀旧'],
+      category: 'style',
+      intensity: 'subtle',
+      duration: '5-8秒',
+      icon: '📼'
+    },
+    {
+      id: 'dramatic_lighting',
+      name: '戏剧光影',
+      prompt: '光影发生轻微变化，突出人物轮廓，营造戏剧性的视觉效果',
+      description: '戏剧性的光影变化效果',
+      tags: ['光影', '戏剧', '轮廓'],
+      category: 'style',
+      intensity: 'strong',
+      duration: '4-6秒',
+      icon: '💡'
+    },
+    {
+      id: 'surprise_expression',
+      name: '惊喜表情',
+      prompt: '人物从平静到惊喜的表情变化，眼睛微微睁大，嘴角上扬，表现出愉快的惊讶',
+      description: '从平静到惊喜的表情转换',
+      tags: ['惊喜', '表情变化', '愉快'],
+      category: 'expression',
+      intensity: 'normal',
+      duration: '3-5秒',
+      icon: '😮'
+    }
+  ];
+
+  const categories = [
+    { id: 'all', name: '全部模板', icon: '🎭' },
+    { id: 'expression', name: '表情动作', icon: '😊' },
+    { id: 'gesture', name: '手势动作', icon: '👋' },
+    { id: 'subtle', name: '细微动作', icon: '👁️' },
+    { id: 'ambient', name: '环境效果', icon: '🌬️' },
+    { id: 'camera', name: '镜头效果', icon: '🎬' },
+    { id: 'style', name: '风格效果', icon: '🎨' }
+  ];
+
+  const popularTemplates = templates.filter(t => t.popular);
+  const filteredTemplates = activeCategory === 'all' ? templates : templates.filter(t => t.category === activeCategory);
+
+  // 步骤导航
+  const steps = [
+    { id: 'upload', name: '选择图片', icon: Upload },
+    { id: 'template', name: '选择模板', icon: Sparkles },
+    { id: 'customize', name: '自定义设置', icon: Settings },
+    { id: 'generate', name: '生成视频', icon: Video }
+  ];
+
+  const handleTemplateSelect = (template: Template) => {
+    setSelectedTemplate(template);
+    setCustomPrompt(template.prompt);
+    setIsCustomMode(false);
+    setVideoSettings(prev => ({
+      ...prev,
+      intensity: template.intensity,
+      duration: template.duration.includes('-') ? '5' : template.duration.replace('秒', '')
+    }));
+  };
+
+  const handleCustomModeToggle = () => {
+    setIsCustomMode(!isCustomMode);
+    if (!isCustomMode) {
+      setSelectedTemplate(null);
+      setCustomPrompt('');
+    }
+  };
+
+  const handleNextStep = () => {
+    const stepOrder = ['upload', 'template', 'customize', 'generate'];
+    const currentIndex = stepOrder.indexOf(currentStep);
+    if (currentIndex < stepOrder.length - 1) {
+      setCurrentStep(stepOrder[currentIndex + 1] as any);
+    }
+  };
+
+  const handlePrevStep = () => {
+    const stepOrder = ['upload', 'template', 'customize', 'generate'];
+    const currentIndex = stepOrder.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(stepOrder[currentIndex - 1] as any);
+    }
+  };
+
+  const generateVideo = async () => {
+    if (!selectedFile) {
+      setError('请先选择图片');
+      return;
+    }
+
+    if (!isCustomMode && !selectedTemplate) {
+      setError('请选择模板或启用自定义模式');
+      return;
+    }
+
+    if (isCustomMode && !customPrompt.trim()) {
+      setError('请输入自定义提示词');
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+    setProcessingProgress(0);
+    setCurrentStep('generate');
+
+    try {
+      // 1. 上传图片
+      setProcessingStep('正在上传图片...');
+      const formData = new FormData();
+      formData.append('photo', selectedFile);
+      
+      const uploadResponse = await fetch('http://localhost:8000/api/photos/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const uploadResult = await uploadResponse.json();
+      
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || '图片上传失败');
+      }
+
+      setProcessingProgress(25);
+
+      // 2. 开始处理
+      setProcessingStep('正在调用即梦API生成视频...');
+      const processResponse = await fetch('http://localhost:8000/api/processing/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          photoId: uploadResult.data.id,
+          type: 'image-to-video',
+          prompt: isCustomMode ? customPrompt : selectedTemplate?.prompt,
+          template: selectedTemplate?.id,
+          parameters: {
+            ...videoSettings,
+            model: 'jimeng', // 指定使用即梦模型
+          }
+        })
+      });
+      
+      const processResult = await processResponse.json();
+      
+      if (!processResult.success) {
+        throw new Error(processResult.error || '视频生成失败');
+      }
+
+      setProcessingProgress(50);
+
+      // 3. 轮询状态
+      setProcessingStep('AI正在生成视频，请耐心等待...');
+      const taskId = processResult.data.id;
+      await pollTaskStatus(taskId);
+
+    } catch (error) {
+      console.error('生成视频失败:', error);
+      setError(error instanceof Error ? error.message : '生成视频失败');
+      setIsProcessing(false);
+    }
+  };
+
+  const pollTaskStatus = async (taskId: string) => {
+    const maxAttempts = 120; // 增加到120次，即10分钟
+    let attempts = 0;
+    
+    const poll = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/api/processing/${taskId}/status`);
+        const result = await response.json();
+        
+        if (result.success && result.data.status === 'completed') {
+          setProcessingProgress(100);
+          setProcessingStep('视频生成完成！');
+          setResultVideo(result.data.result.outputUrl);
+          
+          // 检查是否是演示模式
+          if (result.data.result.metadata?.api_status === 'failed_fallback_to_demo' || 
+              result.data.result.metadata?.provider?.includes('Demo')) {
+            setIsDemoMode(true);
+            setAppliedEffect(result.data.result.metadata?.effect_applied || '演示效果');
+          }
+          
+          setCurrentStep('result');
+          setIsProcessing(false);
+          showToast('🎉 视频生成完成！');
+          return;
+        }
+        
+        if (result.success && result.data.status === 'failed') {
+          throw new Error(result.data.error || '视频生成失败');
+        }
+        
+        // 更新进度
+        const progress = Math.min(50 + (attempts * 0.5), 95);
+        setProcessingProgress(progress);
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 5000);
+        } else {
+          throw new Error('生成超时，请重试');
+        }
+      } catch (error) {
+        console.error('查询状态失败:', error);
+        setError(error instanceof Error ? error.message : '查询状态失败');
+        setIsProcessing(false);
+      }
+    };
+    
+    poll();
+  };
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (typeof document !== 'undefined') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'error' ? '#ef4444' : '#10b981'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 12px;
+        z-index: 1000;
+        font-size: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        font-weight: 500;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        if (document.body.contains(toast)) {
+          document.body.removeChild(toast);
+        }
+      }, 4000);
+    }
+  };
+
+  const downloadVideo = async () => {
+    if (!resultVideo) return;
+    
+    try {
+      const response = await fetch(`http://localhost:8000${resultVideo}`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relive-video-${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showToast('📥 视频下载成功！');
+    } catch (error) {
+      showToast('下载失败，请重试', 'error');
+    }
+  };
+
+  const shareVideo = async () => {
+    if (!resultVideo) return;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'RELIVE AI 生成的视频',
+          text: '看看我用RELIVE AI生成的精彩视频！',
+          url: resultVideo,
+        });
+      } catch (error) {
+        // 用户取消分享
+      }
+    } else {
+      // 复制链接到剪贴板
+      try {
+        await navigator.clipboard.writeText(resultVideo);
+        showToast('🔗 视频链接已复制到剪贴板！');
+      } catch (error) {
+        showToast('分享失败，请手动复制链接', 'error');
+      }
+    }
+  };
+
+  const resetGenerator = () => {
+    setCurrentStep('upload');
+    setSelectedTemplate(null);
+    setCustomPrompt('');
+    setIsCustomMode(false);
+    setIsProcessing(false);
+    setProcessingProgress(0);
+    setResultVideo(null);
+    setError(null);
+    setIsDemoMode(false);
+    setAppliedEffect(null);
+    setVideoSettings({
+      resolution: 'default',
+      duration: '5',
+      intensity: 'normal',
+      fps: '30',
+      style: 'natural'
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-[#1a1e23]">
+      {/* 顶部导航 */}
+      <div className="bg-[#2d3238] border-b border-[#4b5563]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={onBack}
+                className="flex items-center text-[#9ca3af] hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                返回
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-gradient">图生视频</h1>
+                <p className="text-[#9ca3af] text-sm">AI智能图像转视频，让静态照片动起来</p>
+              </div>
+            </div>
+            
+            {/* 步骤指示器 */}
+            <div className="hidden md:flex items-center space-x-4">
+              {steps.map((step, index) => {
+                const isActive = step.id === currentStep;
+                const isCompleted = steps.findIndex(s => s.id === currentStep) > index;
+                const StepIcon = step.icon;
+                
+                return (
+                  <div key={step.id} className="flex items-center">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+                      isActive 
+                        ? 'bg-[#6366f1] text-white' 
+                        : isCompleted 
+                          ? 'bg-[#10b981] text-white'
+                          : 'bg-[#374151] text-[#9ca3af]'
+                    }`}>
+                      <StepIcon className="w-4 h-4" />
+                    </div>
+                    <span className={`ml-2 text-sm ${
+                      isActive ? 'text-white' : 'text-[#9ca3af]'
+                    }`}>
+                      {step.name}
+                    </span>
+                    {index < steps.length - 1 && (
+                      <div className="w-8 h-0.5 bg-[#4b5563] mx-3" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 图片选择步骤 */}
+        {currentStep === 'upload' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">选择您的图片</h2>
+              <p className="text-[#9ca3af]">选择一张图片开始创建您的AI视频</p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {uploadedFiles.map((file, index) => (
+                <div
+                  key={index}
+                  onClick={() => setSelectedFile(file)}
+                  className={`relative cursor-pointer rounded-lg overflow-hidden transition-all duration-300 ${
+                    selectedFile === file 
+                      ? 'ring-2 ring-[#6366f1] scale-105' 
+                      : 'hover:scale-105'
+                  }`}
+                >
+                  <img
+                    src={typeof window !== 'undefined' ? URL.createObjectURL(file) : ''}
+                    alt={`图片 ${index + 1}`}
+                    className="w-full aspect-square object-cover"
+                  />
+                  {selectedFile === file && (
+                    <div className="absolute inset-0 bg-[#6366f1]/20 flex items-center justify-center">
+                      <div className="bg-[#6366f1] text-white rounded-full p-2">
+                        <Video className="w-6 h-6" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {selectedFile && (
+              <div className="text-center">
+                <button
+                  onClick={handleNextStep}
+                  className="btn-primary"
+                >
+                  <span>✨</span>
+                  继续选择模板
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 模板选择步骤 */}
+        {currentStep === 'template' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">选择动效模板</h2>
+              <p className="text-[#9ca3af]">选择预设模板或自定义您的创意</p>
+            </div>
+
+            {/* 自定义模式切换 */}
+            <div className="card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">创作模式</h3>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setIsCustomMode(false)}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      !isCustomMode 
+                        ? 'bg-[#6366f1] text-white' 
+                        : 'bg-[#374151] text-[#9ca3af] hover:bg-[#4b5563]'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2 inline" />
+                    模板模式
+                  </button>
+                  <button
+                    onClick={() => setIsCustomMode(true)}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      isCustomMode 
+                        ? 'bg-[#6366f1] text-white' 
+                        : 'bg-[#374151] text-[#9ca3af] hover:bg-[#4b5563]'
+                    }`}
+                  >
+                    <Wand2 className="w-4 h-4 mr-2 inline" />
+                    自定义模式
+                  </button>
+                </div>
+              </div>
+
+              {!isCustomMode ? (
+                <div className="space-y-6">
+                  {/* 热门模板 */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                      <Star className="w-5 h-5 mr-2 text-yellow-400" />
+                      热门推荐
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {popularTemplates.map((template) => (
+                        <div
+                          key={template.id}
+                          onClick={() => handleTemplateSelect(template)}
+                          className={`card p-4 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                            selectedTemplate?.id === template.id 
+                              ? 'ring-2 ring-[#6366f1] bg-[#6366f1]/10' 
+                              : 'hover:bg-[#374151]'
+                          }`}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className="text-2xl">{template.icon}</div>
+                            <div className="flex-1">
+                              <h5 className="font-semibold text-white mb-1">{template.name}</h5>
+                              <p className="text-[#9ca3af] text-sm mb-2">{template.description}</p>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs px-2 py-1 bg-[#374151] text-[#9ca3af] rounded-full">
+                                  {template.duration}
+                                </span>
+                                <span className="text-xs px-2 py-1 bg-[#374151] text-[#9ca3af] rounded-full">
+                                  {template.intensity === 'subtle' ? '轻微' : 
+                                   template.intensity === 'normal' ? '正常' : '强烈'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 分类过滤 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-lg font-semibold text-white">全部模板</h4>
+                      <div className="flex space-x-2">
+                        {categories.map((category) => (
+                          <button
+                            key={category.id}
+                            onClick={() => setActiveCategory(category.id)}
+                            className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                              activeCategory === category.id 
+                                ? 'bg-[#6366f1] text-white' 
+                                : 'bg-[#374151] text-[#9ca3af] hover:bg-[#4b5563]'
+                            }`}
+                          >
+                            <span className="mr-1">{category.icon}</span>
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {filteredTemplates.map((template) => (
+                        <div
+                          key={template.id}
+                          onClick={() => handleTemplateSelect(template)}
+                          className={`card p-3 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                            selectedTemplate?.id === template.id 
+                              ? 'ring-2 ring-[#6366f1] bg-[#6366f1]/10' 
+                              : 'hover:bg-[#374151]'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-xl mb-2">{template.icon}</div>
+                            <h5 className="font-medium text-white text-sm mb-1">{template.name}</h5>
+                            <p className="text-[#9ca3af] text-xs">{template.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-white">自定义提示词</h4>
+                  <textarea
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="描述您希望图片中出现的动作效果...
+
+例如：
+- 人物面带微笑，轻轻点头
+- 头发在微风中轻柔飘动
+- 衣物自然摆动，营造动感
+- 眼神生动，偶尔眨眼
+
+提示：越详细的描述，AI生成的效果越准确"
+                    className="w-full h-32 bg-[#374151] border border-[#4b5563] rounded-lg p-4 text-white placeholder-[#9ca3af] focus:outline-none focus:border-[#6366f1] resize-none"
+                    maxLength={500}
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-[#9ca3af]">{customPrompt.length}/500</span>
+                    <button
+                      onClick={() => {
+                        const suggestions = [
+                          '人物面带温暖笑容，眼神明亮有神',
+                          '头发在轻风中自然飘动，富有动感',
+                          '衣物轻柔摆动，整体画面生动自然',
+                          '人物轻轻点头，表达认同和理解'
+                        ];
+                        const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+                        setCustomPrompt(randomSuggestion);
+                      }}
+                      className="btn-secondary text-sm"
+                    >
+                      <Sparkles className="w-4 h-4 mr-1" />
+                      随机建议
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={handlePrevStep}
+                className="btn-secondary"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                上一步
+              </button>
+              <button
+                onClick={handleNextStep}
+                disabled={!isCustomMode && !selectedTemplate || isCustomMode && !customPrompt.trim()}
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span>⚙️</span>
+                配置参数
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 参数配置步骤 */}
+        {currentStep === 'customize' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">配置生成参数</h2>
+              <p className="text-[#9ca3af]">调整视频生成的详细参数</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* 左侧：预览 */}
+              <div className="card p-6">
+                <h3 className="text-xl font-bold text-white mb-4">预览</h3>
+                {selectedFile && (
+                  <div className="space-y-4">
+                    <div className="relative rounded-lg overflow-hidden">
+                      <img
+                        src={typeof window !== 'undefined' ? URL.createObjectURL(selectedFile) : ''}
+                        alt="预览图片"
+                        className="w-full aspect-video object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="bg-black/50 text-white p-3 rounded-lg">
+                          <Play className="w-8 h-8" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-white">
+                        {isCustomMode ? '自定义效果' : selectedTemplate?.name}
+                      </h4>
+                      <p className="text-[#9ca3af] text-sm">
+                        {isCustomMode ? customPrompt : selectedTemplate?.description}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 右侧：参数设置 */}
+              <div className="card p-6">
+                <h3 className="text-xl font-bold text-white mb-6">生成参数</h3>
+                
+                <div className="space-y-6">
+                  {/* 基础设置 */}
+                  <div>
+                    <h4 className="font-semibold text-white mb-4">基础设置</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#d1d5db] mb-2">视频时长</label>
+                        <select
+                          value={videoSettings.duration}
+                          onChange={(e) => setVideoSettings(prev => ({ ...prev, duration: e.target.value as any }))}
+                          className="w-full bg-[#374151] border border-[#4b5563] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#6366f1]"
+                        >
+                          <option value="3">3秒</option>
+                          <option value="5">5秒</option>
+                          <option value="8">8秒</option>
+                          <option value="10">10秒</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#d1d5db] mb-2">动作强度</label>
+                        <select
+                          value={videoSettings.intensity}
+                          onChange={(e) => setVideoSettings(prev => ({ ...prev, intensity: e.target.value as any }))}
+                          className="w-full bg-[#374151] border border-[#4b5563] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#6366f1]"
+                        >
+                          <option value="subtle">轻微</option>
+                          <option value="normal">正常</option>
+                          <option value="strong">强烈</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 高级设置 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-white">高级设置</h4>
+                      <button
+                        onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                        className="text-[#6366f1] hover:text-[#8b5cf6] transition-colors"
+                      >
+                        {showAdvancedSettings ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    
+                    {showAdvancedSettings && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-[#d1d5db] mb-2">分辨率</label>
+                          <select
+                            value={videoSettings.resolution}
+                            onChange={(e) => setVideoSettings(prev => ({ ...prev, resolution: e.target.value as any }))}
+                            className="w-full bg-[#374151] border border-[#4b5563] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#6366f1]"
+                          >
+                            <option value="default">默认</option>
+                            <option value="720p">720p</option>
+                            <option value="1080p">1080p</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-[#d1d5db] mb-2">帧率</label>
+                          <select
+                            value={videoSettings.fps}
+                            onChange={(e) => setVideoSettings(prev => ({ ...prev, fps: e.target.value as any }))}
+                            className="w-full bg-[#374151] border border-[#4b5563] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#6366f1]"
+                          >
+                            <option value="24">24 FPS</option>
+                            <option value="30">30 FPS</option>
+                            <option value="60">60 FPS</option>
+                          </select>
+                        </div>
+                        <div className="col-span-2">
+                          <label className="block text-sm font-medium text-[#d1d5db] mb-2">风格</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {(['natural', 'artistic', 'dramatic'] as const).map((style) => (
+                              <button
+                                key={style}
+                                onClick={() => setVideoSettings(prev => ({ ...prev, style }))}
+                                className={`p-2 rounded-lg text-sm transition-colors ${
+                                  videoSettings.style === style
+                                    ? 'bg-[#6366f1] text-white'
+                                    : 'bg-[#374151] text-[#9ca3af] hover:bg-[#4b5563]'
+                                }`}
+                              >
+                                {style === 'natural' ? '自然' : style === 'artistic' ? '艺术' : '戏剧'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 消耗积分提示 */}
+                  <div className="bg-[#6366f1]/10 border border-[#6366f1]/30 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <Info className="w-5 h-5 text-[#6366f1] mt-0.5" />
+                      <div>
+                        <h5 className="font-medium text-white mb-1">消耗积分</h5>
+                        <p className="text-[#d1d5db] text-sm mb-2">
+                          本次生成预计消耗 <span className="font-semibold text-[#6366f1]">150</span> 积分
+                        </p>
+                        <p className="text-[#9ca3af] text-xs">
+                          高分辨率和长时长视频将消耗更多积分
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={handlePrevStep}
+                className="btn-secondary"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                上一步
+              </button>
+              <button
+                onClick={generateVideo}
+                className="btn-primary"
+              >
+                <span>🎬</span>
+                开始生成
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 生成中步骤 */}
+        {currentStep === 'generate' && isProcessing && (
+          <div className="max-w-2xl mx-auto">
+            <div className="card p-8 text-center">
+              <div className="w-24 h-24 border-4 border-[#4b5563] border-t-[#6366f1] rounded-full animate-spin mx-auto mb-6"></div>
+              <h2 className="text-2xl font-bold text-white mb-4">AI正在生成您的视频</h2>
+              <p className="text-[#9ca3af] mb-6">{processingStep}</p>
+              
+              {/* 进度条 */}
+              <div className="w-full bg-[#374151] rounded-full h-3 mb-4">
+                <div 
+                  className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${processingProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-[#9ca3af] mb-6">{processingProgress}% 完成</p>
+
+              {/* 预计时间 */}
+              <div className="flex items-center justify-center space-x-2 text-[#9ca3af]">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">预计剩余时间: {Math.max(1, Math.ceil((100 - processingProgress) / 2))} 分钟</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 结果展示步骤 */}
+        {currentStep === 'result' && resultVideo && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">🎉 视频生成完成！</h2>
+              <p className="text-[#9ca3af]">您的AI视频已经准备就绪</p>
+              
+              {/* 演示模式提示 */}
+              {isDemoMode && (
+                <div className="mt-4 mx-auto max-w-2xl">
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="text-amber-400 text-xl">🎭</div>
+                      <div className="text-left">
+                        <h3 className="font-semibold text-amber-200 mb-2">演示模式</h3>
+                        <p className="text-amber-100 text-sm mb-2">
+                          当前使用演示模式生成视频，已应用<strong>"{appliedEffect}"</strong>
+                        </p>
+                        <p className="text-amber-200 text-xs">
+                          💡 不同的模板会产生不同的视觉效果。配置火山引擎即梦API密钥可获得更真实的AI视频生成效果。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="max-w-4xl mx-auto">
+              <div className="card p-6">
+                <video 
+                  src={resultVideo ? `http://localhost:8000${resultVideo}` : undefined} 
+                  controls 
+                  autoPlay
+                  loop
+                  className="w-full rounded-lg mb-6"
+                  poster={selectedFile ? URL.createObjectURL(selectedFile) : ''}
+                >
+                  您的浏览器不支持视频播放。
+                </video>
+
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <button
+                    onClick={downloadVideo}
+                    className="btn-primary"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    下载视频
+                  </button>
+                  <button
+                    onClick={shareVideo}
+                    className="btn-secondary"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    分享视频
+                  </button>
+                  <button
+                    onClick={resetGenerator}
+                    className="btn-secondary"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    重新创建
+                  </button>
+                </div>
+              </div>
+
+              {/* 生成信息 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="card p-4 text-center">
+                  <Clock className="w-6 h-6 text-[#6366f1] mx-auto mb-2" />
+                  <div className="text-[#6366f1] font-semibold">{videoSettings.duration}秒</div>
+                  <div className="text-[#9ca3af] text-sm">视频时长</div>
+                </div>
+                <div className="card p-4 text-center">
+                  <Settings className="w-6 h-6 text-[#6366f1] mx-auto mb-2" />
+                  <div className="text-[#6366f1] font-semibold">{videoSettings.resolution}</div>
+                  <div className="text-[#9ca3af] text-sm">分辨率</div>
+                </div>
+                <div className="card p-4 text-center">
+                  <Zap className="w-6 h-6 text-[#6366f1] mx-auto mb-2" />
+                  <div className="text-[#6366f1] font-semibold">即梦AI</div>
+                  <div className="text-[#9ca3af] text-sm">生成模型</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 错误提示 */}
+        {error && (
+          <div className="fixed bottom-4 right-4 bg-[#ef4444] text-white p-4 rounded-lg shadow-lg max-w-md">
+            <div className="flex items-start space-x-3">
+              <X className="w-5 h-5 mt-0.5" />
+              <div>
+                <h4 className="font-medium mb-1">生成失败</h4>
+                <p className="text-sm">{error}</p>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default VideoGenerator;

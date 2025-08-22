@@ -1,0 +1,290 @@
+// Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  username          String?   @unique
+  password          String
+  avatar            String?
+  credits           Int       @default(200) // 新用户免费积分
+  membershipLevel   MembershipLevel @default(FREE)
+  membershipExpiry  DateTime?
+  emailVerified     Boolean   @default(false)
+  emailVerifiedAt   DateTime?
+  isActive          Boolean   @default(true)
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  referralCode      String    @unique @default(cuid())
+  referredBy        String?
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  photos            Photo[]
+  processingTasks   ProcessingTask[]
+  albums            Album[]
+  orders            Order[]
+  shareRecords      ShareRecord[]
+  invitesSent       InviteRecord[] @relation("Inviter")
+  invitesReceived   InviteRecord[] @relation("Invitee")
+  creditTransactions CreditTransaction[]
+
+  @@map("users")
+}
+
+model Photo {
+  id              String    @id @default(uuid())
+  userId          String
+  originalUrl     String
+  processedUrl    String?
+  thumbnailUrl    String?
+  filename        String
+  fileSize        Int
+  mimeType        String
+  width           Int
+  height          Int
+  metadata        Json      // PhotoMetadata
+  status          PhotoStatus @default(UPLOADED)
+  tags            String[]
+  isPublic        Boolean   @default(false)
+  viewCount       Int       @default(0)
+  likeCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processingTasks ProcessingTask[]
+  albumPhotos     AlbumPhoto[]
+  shareRecords    ShareRecord[]
+
+  @@map("photos")
+}
+
+model ProcessingTask {
+  id              String    @id @default(uuid())
+  userId          String
+  photoId         String
+  type            ProcessingType
+  status          TaskStatus @default(PENDING)
+  progress        Int       @default(0)
+  parameters      Json      // ProcessingParameters
+  result          Json?     // ProcessingResult
+  creditsUsed     Int
+  errorMessage    String?
+  createdAt       DateTime  @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo           Photo     @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@map("processing_tasks")
+}
+
+model Album {
+  id              String    @id @default(uuid())
+  userId          String
+  title           String
+  description     String?
+  coverPhotoId    String?
+  isPublic        Boolean   @default(false)
+  shareToken      String?   @unique
+  template        Json      // AlbumTemplate
+  music           String?
+  viewCount       Int       @default(0)
+  likeCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  albumPhotos     AlbumPhoto[]
+  shareRecords    ShareRecord[]
+
+  @@map("albums")
+}
+
+model AlbumPhoto {
+  id              String    @id @default(uuid())
+  albumId         String
+  photoId         String
+  order           Int
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  album           Album     @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  photo           Photo     @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@unique([albumId, photoId])
+  @@map("album_photos")
+}
+
+model Order {
+  id              String    @id @default(uuid())
+  userId          String
+  type            OrderType
+  packageId       String?
+  amount          Decimal   @db.Decimal(10, 2)
+  credits         Int?
+  membershipLevel MembershipLevel?
+  membershipDuration Int?  // in days
+  status          OrderStatus @default(PENDING)
+  paymentMethod   String?
+  paymentId       String?
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("orders")
+}
+
+model CreditTransaction {
+  id              String    @id @default(uuid())
+  userId          String
+  amount          Int       // positive for credit, negative for debit
+  type            CreditTransactionType
+  description     String
+  orderId         String?
+  taskId          String?
+  referenceId     String?
+  balanceBefore   Int
+  balanceAfter    Int
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("credit_transactions")
+}
+
+model ShareRecord {
+  id              String    @id @default(uuid())
+  userId          String
+  contentType     ContentType
+  contentId       String
+  platform        String
+  shareUrl        String?
+  viewCount       Int       @default(0)
+  likeCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo           Photo?    @relation(fields: [contentId], references: [id], onDelete: Cascade, map: "share_records_photo_fkey")
+  album           Album?    @relation(fields: [contentId], references: [id], onDelete: Cascade, map: "share_records_album_fkey")
+
+  @@map("share_records")
+}
+
+model InviteRecord {
+  id              String    @id @default(uuid())
+  inviterId       String
+  inviteeId       String?
+  inviteCode      String    @unique
+  status          InviteStatus @default(PENDING)
+  rewardGiven     Boolean   @default(false)
+  rewardAmount    Int       @default(100)
+  createdAt       DateTime  @default(now())
+  acceptedAt      DateTime?
+
+  // Relations
+  inviter         User      @relation("Inviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee         User?     @relation("Invitee", fields: [inviteeId], references: [id], onDelete: SetNull)
+
+  @@map("invite_records")
+}
+
+model SystemConfig {
+  id              String    @id @default(uuid())
+  key             String    @unique
+  value           Json
+  description     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("system_configs")
+}
+
+// Enums
+enum MembershipLevel {
+  FREE
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum PhotoStatus {
+  UPLOADING
+  UPLOADED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ProcessingType {
+  DAMAGE_REPAIR
+  BLUR_ENHANCE
+  COLORIZATION
+  UPSCALE
+  SMART_RESTORE
+  FACE_ANIMATION
+  CUSTOM_ANIMATION
+}
+
+enum TaskStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum OrderType {
+  CREDITS
+  MEMBERSHIP
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum CreditTransactionType {
+  PURCHASE
+  REWARD
+  REFERRAL
+  DAILY_SIGNIN
+  TASK_COMPLETION
+  PROCESSING_COST
+  REFUND
+}
+
+enum ContentType {
+  PHOTO
+  ALBUM
+  ANIMATION
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}

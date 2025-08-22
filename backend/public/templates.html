@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图生视频提示词模板 - RELIVE AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .category-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .category-section.active {
+            display: block;
+        }
+        
+        .category-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .category-description {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .template-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .template-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .template-prompt {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .template-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .difficulty {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .difficulty.简单 {
+            background: #e8f5e8;
+            color: #2d7d32;
+        }
+        
+        .difficulty.中等 {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .difficulty.复杂 {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .duration {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            color: #667eea;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .tips-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 10px;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .templates-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-nav {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 图生视频提示词模板</h1>
+            <p>专业的AI视频生成提示词库，让你的创意变为现实</p>
+        </div>
+        
+        <div class="category-nav" id="categoryNav">
+            <div class="loading">正在加载模板...</div>
+        </div>
+        
+        <div id="categorySections">
+            <div class="loading">正在加载内容...</div>
+        </div>
+        
+        <div class="tips-section">
+            <div class="tips-title">💡 使用技巧</div>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <strong>动作幅度:</strong> 不宜过大，避免不自然的效果
+                </div>
+                <div class="tip-item">
+                    <strong>表情变化:</strong> 要循序渐进，不要过于突兀
+                </div>
+                <div class="tip-item">
+                    <strong>时长控制:</strong> 建议2-8秒为宜，过长容易不连贯
+                </div>
+                <div class="tip-item">
+                    <strong>镜头语言:</strong> 结合'特写'、'中景'等描述
+                </div>
+                <div class="tip-item">
+                    <strong>光影效果:</strong> 添加'柔和光线'、'暖色调'等
+                </div>
+                <div class="tip-item">
+                    <strong>背景环境:</strong> 避免过于复杂的场景描述
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let templatesData = null;
+        let currentCategory = null;
+        
+        // 加载模板数据
+        async function loadTemplates() {
+            try {
+                const response = await fetch('/api/templates/image-to-video');
+                const result = await response.json();
+                
+                if (result.success) {
+                    templatesData = result.data.image_to_video_templates;
+                    renderCategoryNav();
+                    renderFirstCategory();
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                document.getElementById('categoryNav').innerHTML = 
+                    `<div class="error">加载失败: ${error.message}</div>`;
+            }
+        }
+        
+        // 渲染分类导航
+        function renderCategoryNav() {
+            const nav = document.getElementById('categoryNav');
+            const categories = templatesData.categories;
+            
+            nav.innerHTML = Object.keys(categories).map(key => 
+                `<button class="nav-btn" data-category="${key}">
+                    ${categories[key].name}
+                </button>`
+            ).join('');
+            
+            // 添加组合案例按钮
+            nav.innerHTML += `<button class="nav-btn" data-category="combination_examples">
+                ${templatesData.combination_examples.name}
+            </button>`;
+            
+            // 绑定点击事件
+            nav.addEventListener('click', (e) => {
+                if (e.target.classList.contains('nav-btn')) {
+                    const category = e.target.dataset.category;
+                    showCategory(category);
+                    
+                    // 更新按钮状态
+                    document.querySelectorAll('.nav-btn').forEach(btn => 
+                        btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+        }
+        
+        // 显示第一个分类
+        function renderFirstCategory() {
+            const firstCategory = Object.keys(templatesData.categories)[0];
+            showCategory(firstCategory);
+            document.querySelector(`[data-category="${firstCategory}"]`).classList.add('active');
+        }
+        
+        // 显示指定分类
+        function showCategory(categoryKey) {
+            currentCategory = categoryKey;
+            
+            let categoryData;
+            if (categoryKey === 'combination_examples') {
+                categoryData = templatesData.combination_examples;
+            } else {
+                categoryData = templatesData.categories[categoryKey];
+            }
+            
+            const sectionsContainer = document.getElementById('categorySections');
+            sectionsContainer.innerHTML = `
+                <div class="category-section active">
+                    <div class="category-title">${categoryData.name}</div>
+                    <div class="category-description">${categoryData.description}</div>
+                    <div class="templates-grid">
+                        ${categoryData.templates.map(template => renderTemplate(template)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 渲染单个模板
+        function renderTemplate(template) {
+            return `
+                <div class="template-card" data-template-id="${template.id || Math.random()}">
+                    <div class="template-name">${template.name}</div>
+                    <div class="template-prompt">${template.prompt}</div>
+                    <div class="template-meta">
+                        <span class="difficulty ${template.difficulty}">${template.difficulty}</span>
+                        <span class="duration">⏱️ ${template.duration}</span>
+                        <button class="copy-btn" onclick="copyTemplatePrompt(this)" title="复制提示词">
+                            📋 复制提示词
+                        </button>
+                    </div>
+                    <div class="tags">
+                        ${template.tags.map(tag => `<span class="tag"># ${tag}</span>`).join('')}
+                    </div>
+                    <div class="template-data" style="display: none;">${JSON.stringify(template)}</div>
+                </div>
+            `;
+        }
+        
+        // 复制模板提示词
+        async function copyTemplatePrompt(button) {
+            try {
+                const templateCard = button.closest('.template-card');
+                const templateDataElement = templateCard.querySelector('.template-data');
+                const templateData = JSON.parse(templateDataElement.textContent);
+                const prompt = templateData.prompt;
+                
+                await navigator.clipboard.writeText(prompt);
+                
+                // 显示复制成功提示
+                showCopyToast('✅ 提示词已复制到剪贴板！');
+                
+                // 按钮视觉反馈
+                const originalText = button.textContent;
+                button.textContent = '✅ 已复制';
+                button.style.background = '#4caf50';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('复制失败:', error);
+                showCopyToast('❌ 复制失败，请手动选择文本复制', 'error');
+            }
+        }
+        
+        // 旧的复制函数，保持兼容性
+        async function copyPrompt(prompt) {
+            try {
+                await navigator.clipboard.writeText(prompt);
+                showCopyToast('✅ 提示词已复制到剪贴板！');
+            } catch (error) {
+                console.error('复制失败:', error);
+                showCopyToast('❌ 复制失败，请手动选择文本复制', 'error');
+            }
+        }
+        
+        // 显示复制提示
+        function showCopyToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#f44336' : '#4caf50'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                z-index: 1000;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideInRight 0.3s ease-out;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 2500);
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', loadTemplates);
+    </script>
+</body>
+</html>

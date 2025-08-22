@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELIVE AI老照片复活平台 - 演示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#D4A574',
+                            secondary: '#E8A87C', 
+                            dark: '#8B4513',
+                            light: '#FAF6F0'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #D4A574, #E8A87C);
+        }
+    </style>
+</head>
+<body class="bg-brand-light min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-brand-primary">RELIVE</h1>
+                    <span class="ml-2 text-sm text-gray-500">AI老照片复活平台</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">积分: 1,234</span>
+                    <i class="fas fa-crown text-brand-primary"></i>
+                    <div class="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-brand-dark mb-6">
+                    重现时光
+                    <span class="block text-brand-primary">连接回忆</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    用AI技术让每一张珍贵的老照片重新焕发生命力，让回忆变得更加生动
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="gradient-bg text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
+                        开始体验
+                    </button>
+                    <button class="border-2 border-brand-primary text-brand-primary px-8 py-4 rounded-lg text-lg font-semibold hover:bg-brand-primary hover:text-white transition-all duration-200">
+                        查看案例
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Floating elements -->
+            <div class="absolute top-10 left-10 w-20 h-20 bg-brand-secondary opacity-20 rounded-full animate-float"></div>
+            <div class="absolute bottom-10 right-10 w-16 h-16 bg-brand-primary opacity-20 rounded-full animate-float" style="animation-delay: -3s;"></div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-brand-dark mb-4">核心功能</h2>
+                <p class="text-gray-600">专业AI技术，为您的回忆保驾护航</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-camera text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-brand-dark mb-2">照片修复</h3>
+                    <p class="text-gray-600">破损修复、模糊增强、智能修复</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-magic text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-brand-dark mb-2">人物复活</h3>
+                    <p class="text-gray-600">让老照片中的人物动起来</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-tags text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-brand-dark mb-2">智能标注</h3>
+                    <p class="text-gray-600">自动识别时间、人物、地点</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-book-open text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-brand-dark mb-2">时光相册</h3>
+                    <p class="text-gray-600">制作精美的数字相册</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Demo Section -->
+    <section class="py-20 bg-brand-light">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-brand-dark mb-4">上传照片开始修复</h2>
+                <p class="text-gray-600">拖拽上传或点击选择文件</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition-all duration-200 hover:border-brand-primary hover:bg-brand-light">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-brand-primary mb-4"></i>
+                    <p class="text-lg font-medium text-brand-dark mb-2">拖拽图片到此处或点击上传</p>
+                    <p class="text-gray-600">支持 JPG、PNG、TIFF 格式，单个文件最大 50MB</p>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*" multiple>
+                </div>
+                
+                <div id="processingOptions" class="mt-8 hidden">
+                    <h3 class="text-xl font-semibold text-brand-dark mb-6">选择处理类型</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-brand-primary hover:bg-brand-light transition-all duration-200">
+                            <div class="text-2xl mb-2">🔧</div>
+                            <h4 class="font-semibold text-brand-dark mb-1">破损修复</h4>
+                            <p class="text-sm text-gray-600 mb-2">修复照片裂痕、污渍等损伤</p>
+                            <span class="text-sm font-medium text-brand-primary">20 积分</span>
+                        </div>
+                        
+                        <div class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-brand-primary hover:bg-brand-light transition-all duration-200">
+                            <div class="text-2xl mb-2">🎨</div>
+                            <h4 class="font-semibold text-brand-dark mb-1">黑白上色</h4>
+                            <p class="text-sm text-gray-600 mb-2">为黑白照片添加自然色彩</p>
+                            <span class="text-sm font-medium text-brand-primary">30 积分</span>
+                        </div>
+                        
+                        <div class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-brand-primary hover:bg-brand-light transition-all duration-200">
+                            <div class="text-2xl mb-2">🎭</div>
+                            <h4 class="font-semibold text-brand-dark mb-1">人物复活</h4>
+                            <p class="text-sm text-gray-600 mb-2">让照片中的人物动起来</p>
+                            <span class="text-sm font-medium text-brand-primary">100 积分</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <button class="gradient-bg text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
+                            开始处理
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-brand-dark mb-4">选择您的方案</h2>
+                <p class="text-gray-600">灵活的价格方案，满足不同需求</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <!-- Monthly Plan -->
+                <div class="bg-white border-2 border-brand-light rounded-2xl p-8 text-center">
+                    <h3 class="text-xl font-semibold text-brand-dark mb-4">月度会员</h3>
+                    <div class="text-4xl font-bold text-brand-primary mb-6">
+                        ¥29.9<span class="text-base text-gray-600">/月</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-left">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>1000 积分</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>无水印下载</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>优先处理</li>
+                    </ul>
+                    <button class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-200">选择方案</button>
+                </div>
+                
+                <!-- Yearly Plan - Popular -->
+                <div class="gradient-bg text-white rounded-2xl p-8 text-center transform scale-105 relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-orange-400 text-white px-4 py-1 rounded-full text-sm font-medium">
+                        最受欢迎
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">年度会员</h3>
+                    <div class="text-4xl font-bold mb-6">
+                        ¥199<span class="text-base opacity-80">/年</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-left">
+                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>15000 积分</li>
+                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>无水印下载</li>
+                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>优先处理</li>
+                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>专属客服</li>
+                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>批量处理</li>
+                    </ul>
+                    <button class="w-full bg-white text-brand-primary py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-200">选择方案</button>
+                </div>
+                
+                <!-- Credits Package -->
+                <div class="bg-white border-2 border-brand-light rounded-2xl p-8 text-center">
+                    <h3 class="text-xl font-semibold text-brand-dark mb-4">按次付费</h3>
+                    <div class="text-4xl font-bold text-brand-primary mb-6">¥49.9</div>
+                    <ul class="space-y-3 mb-8 text-left">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>3000 积分</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>永不过期</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>灵活使用</li>
+                    </ul>
+                    <button class="w-full border-2 border-brand-primary text-brand-primary py-3 rounded-lg font-semibold hover:bg-brand-primary hover:text-white transition-all duration-200">选择方案</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 gradient-bg">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-white mb-4">开启您的时光之旅</h2>
+            <p class="text-xl text-white opacity-90 mb-8">现在注册，免费获得200积分体验AI照片修复</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-white text-brand-primary px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all duration-200">
+                    立即注册
+                </button>
+                <button class="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-brand-primary transition-all duration-200">
+                    <i class="fas fa-users mr-2"></i>邀请好友
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">RELIVE</h3>
+                    <p class="text-gray-300">让每一张珍贵的老照片重新焕发生命力</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">产品功能</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>照片修复</li>
+                        <li>人物复活</li>
+                        <li>智能标注</li>
+                        <li>时光相册</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">服务支持</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>使用帮助</li>
+                        <li>技术支持</li>
+                        <li>意见反馈</li>
+                        <li>联系我们</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">关于我们</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>公司介绍</li>
+                        <li>隐私政策</li>
+                        <li>服务条款</li>
+                        <li>加入我们</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 RELIVE. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 上传区域交互
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const processingOptions = document.getElementById('processingOptions');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-brand-primary', 'bg-brand-light');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-brand-primary', 'bg-brand-light');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-brand-primary', 'bg-brand-light');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                // 显示处理选项
+                processingOptions.classList.remove('hidden');
+                
+                // 更新上传区域
+                uploadArea.innerHTML = `
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <p class="text-lg font-medium text-brand-dark mb-2">已上传 ${files.length} 张照片</p>
+                    <p class="text-gray-600">请选择处理类型开始修复</p>
+                `;
+                
+                // 添加动画效果
+                processingOptions.style.opacity = '0';
+                processingOptions.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    processingOptions.style.transition = 'all 0.5s ease';
+                    processingOptions.style.opacity = '1';
+                    processingOptions.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        }
+
+        // 处理选项选择
+        const options = document.querySelectorAll('#processingOptions .border-2');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                options.forEach(opt => opt.classList.remove('border-brand-primary', 'bg-brand-light'));
+                option.classList.add('border-brand-primary', 'bg-brand-light');
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
