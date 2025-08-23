@@ -64,7 +64,7 @@ export interface ProcessingTask {
   userId: string;
   photoId: string;
   type: ProcessingType;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'queued' | 'processing' | 'completed' | 'failed';
   progress: number;
   parameters: ProcessingParameters;
   result?: ProcessingResult;
@@ -109,8 +109,11 @@ export interface ProcessingResult {
   videoUrl?: string;
   beforeAfterUrl?: string;
   qualityScore: number;
-  improvementMetrics: QualityMetrics;
+  improvementMetrics?: QualityMetrics;
   processingTime: number;
+  metadata?: {
+    improvements?: string[];
+  };
 }
 
 export interface QualityMetrics {

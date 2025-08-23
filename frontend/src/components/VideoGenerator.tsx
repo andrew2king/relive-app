@@ -223,7 +223,7 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({ uploadedFiles, onBack }
     setVideoSettings(prev => ({
       ...prev,
       intensity: template.intensity,
-      duration: template.duration.includes('-') ? '5' : template.duration.replace('秒', '')
+      duration: template.duration.includes('-') ? '5' : (template.duration.replace('秒', '') as '3' | '5' | '8' | '10')
     }));
   };
 

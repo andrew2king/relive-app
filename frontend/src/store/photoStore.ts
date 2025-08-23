@@ -185,7 +185,7 @@ export const usePhotoStore = create<PhotoState>()(
             });
           } else {
             set({
-              error: response.error?.message || '加载失败',
+              error: response.error || '加载失败',
               loading: false,
             });
           }
@@ -214,7 +214,7 @@ export const usePhotoStore = create<PhotoState>()(
             }));
             return true;
           } else {
-            set({ error: response.error?.message || '删除失败' });
+            set({ error: response.error || '删除失败' });
             return false;
           }
         } catch (error) {
@@ -317,7 +317,7 @@ export const usePhotoStore = create<PhotoState>()(
             get().updateProcessingStatus(taskId, { status: 'failed' });
             return true;
           } else {
-            set({ error: response.error?.message || '取消失败' });
+            set({ error: response.error || '取消失败' });
             return false;
           }
         } catch (error) {

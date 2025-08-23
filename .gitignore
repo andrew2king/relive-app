@@ -81,3 +81,5 @@ coverage/
 
 # Prisma
 prisma/dev.db*
+# Local Netlify folder
+.netlify

@@ -222,7 +222,7 @@ const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                 alt="处理后的照片"
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  console.error('图片加载失败:', status.result.outputUrl);
+                  console.error('图片加载失败:', status.result?.outputUrl);
                   // 显示友好的错误消息而不是破损的图片图标
                   const imgElement = e.currentTarget as HTMLImageElement;
                   imgElement.style.display = 'none';

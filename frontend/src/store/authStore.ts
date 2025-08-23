@@ -93,7 +93,7 @@ export const useAuthStore = create<AuthState>()(
               return true;
             } else {
               set({
-                error: response.error?.message || '登录失败',
+                error: response.error || '登录失败',
                 loading: false,
               });
               return false;
@@ -130,7 +130,7 @@ export const useAuthStore = create<AuthState>()(
               return true;
             } else {
               set({
-                error: response.error?.message || '注册失败',
+                error: response.error || '注册失败',
                 loading: false,
               });
               return false;

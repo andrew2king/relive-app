@@ -31,7 +31,7 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as any;
     
     // 401错误处理 - token过期
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
@@ -94,7 +94,7 @@ export interface ProcessingStartResponse {
     photoId: string;
     type: string;
     parameters: any;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    status: 'pending' | 'queued' | 'processing' | 'completed' | 'failed';
     progress: number;
     createdAt: string;
     estimatedTime: number;
@@ -106,21 +106,25 @@ export interface ProcessingStatusResponse {
   success: boolean;
   data: {
     id: string;
-    photoId: string;
+    photoId?: string;
     type: string;
-    parameters: any;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    parameters?: any;
+    status: 'pending' | 'queued' | 'processing' | 'completed' | 'failed';
     progress: number;
     createdAt: string;
     estimatedTime: number;
     completedAt?: string;
+    error?: string;
     result?: {
       outputUrl: string;
       qualityScore: number;
       processingTime: number;
+      metadata?: {
+        improvements?: string[];
+      };
     };
   };
-  message: string;
+  message?: string;
 }
 
 export const photoAPI = {
