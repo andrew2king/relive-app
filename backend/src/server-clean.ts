@@ -12,6 +12,26 @@ import { connectDatabase } from './config/database';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { addRequestId } from './middleware/apiResponse';
 import { generalLimiter } from './middleware/rateLimiter';
+import { 
+  generalRateLimit, 
+  authRateLimit, 
+  apiRateLimit, 
+  uploadRateLimit,
+  securityHeaders,
+  suspiciousActivityDetection,
+  requestSizeLimit
+} from './middleware/security';
+import { 
+  getCsrfToken, 
+  sameSiteCookies 
+} from './middleware/csrf';
+import { 
+  sanitizeInput, 
+  handleValidationErrors, 
+  preventSQLInjection, 
+  validateFileType, 
+  ValidationRuleBuilder 
+} from './middleware/inputValidation';
 import authRoutes from './routes/auth';
 import creditsRoutes from './routes/credits';
 import paymentRoutes from './routes/payment';
@@ -21,22 +41,27 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Middleware
-app.use(helmet({
-  crossOriginResourcePolicy: false, // 允许跨域资源访问
-}));
+// Security Middleware
+app.use(securityHeaders);
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001'], // 允许前端访问
   credentials: true
 }));
 
-// 请求追踪和限流
+// 请求追踪和安全防护
 app.use(addRequestId);
-app.use(generalLimiter);
+app.use(sameSiteCookies);
+app.use(requestSizeLimit('50mb'));
+app.use(suspiciousActivityDetection);
+app.use(generalRateLimit);
 
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Input validation and sanitization
+app.use(sanitizeInput);
+app.use(preventSQLInjection);
 
 // Static file serving for uploaded and processed files
 app.use('/uploads', express.static('uploads', {
@@ -55,14 +80,17 @@ app.use('/uploads', express.static('uploads', {
   }
 }));
 
-// Auth routes
-app.use('/api/auth', authRoutes);
+// Security endpoints
+app.get('/api/csrf-token', getCsrfToken);
+
+// Auth routes (with auth-specific rate limiting)
+app.use('/api/auth', authRateLimit, authRoutes);
 
 // Credits routes
-app.use('/api/credits', creditsRoutes);
+app.use('/api/credits', apiRateLimit, creditsRoutes);
 
 // Payment routes
-app.use('/api/payment', paymentRoutes);
+app.use('/api/payment', apiRateLimit, paymentRoutes);
 
 // 静态文件服务
 app.use('/public', express.static('public'));
