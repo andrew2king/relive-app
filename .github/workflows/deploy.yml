@@ -1,85 +1,35 @@
-name: Deploy to Production
+name: Deploy to Netlify
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Deployment environment'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-        - staging
-        - production
-  
-  release:
-    types: [published]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'production' }}
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Set environment variables
+    - uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
       run: |
-        if [[ "${{ github.event.inputs.environment }}" == "production" || "${{ github.event_name }}" == "release" ]]; then
-          echo "DEPLOY_ENV=production" >> $GITHUB_ENV
-          echo "DEPLOY_URL=https://relive-app.com" >> $GITHUB_ENV
-        else
-          echo "DEPLOY_ENV=staging" >> $GITHUB_ENV
-          echo "DEPLOY_URL=https://staging.relive-app.com" >> $GITHUB_ENV
-        fi
-    
-    - name: Deploy with Docker Compose
-      run: |
-        echo "正在部署到 ${{ env.DEPLOY_ENV }} 环境..."
+        npm install
+        cd frontend && npm install
         
-        # 创建部署脚本
-        cat > deploy.sh << 'EOF'
-        #!/bin/bash
-        set -e
+    - name: Build frontend
+      run: cd frontend && npm run build
         
-        # 拉取最新镜像
-        docker-compose pull
-        
-        # 停止旧服务
-        docker-compose down
-        
-        # 启动新服务
-        docker-compose up -d
-        
-        # 等待服务健康检查
-        echo "等待服务启动..."
-        sleep 30
-        
-        # 检查服务状态
-        docker-compose ps
-        
-        echo "部署完成！服务地址: ${{ env.DEPLOY_URL }}"
-        EOF
-        
-        chmod +x deploy.sh
-        echo "部署脚本已准备就绪"
-    
-    - name: Run database migrations
-      run: |
-        echo "运行数据库迁移..."
-        # docker-compose exec -T backend npx prisma migrate deploy
-    
-    - name: Health check
-      run: |
-        echo "执行健康检查..."
-        # curl -f ${{ env.DEPLOY_URL }}/health || exit 1
-    
-    - name: Notify deployment
-      run: |
-        echo "🚀 部署成功到 ${{ env.DEPLOY_ENV }} 环境"
-        echo "访问地址: ${{ env.DEPLOY_URL }}"
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v3.0
+      with:
+        publish-dir: './frontend/out'
+        functions-dir: './netlify/functions'
+        production-branch: main
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

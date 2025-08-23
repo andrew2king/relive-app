@@ -1,0 +1,47 @@
+name: Netlify自动部署
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: |
+        npm install
+        cd frontend && npm install
+        
+    - name: 构建前端
+      run: |
+        cd frontend && npm run build
+        
+    - name: 部署到Netlify
+      uses: netlify/actions/cli@master
+      with:
+        args: deploy --prod --dir=frontend/out --functions=netlify/functions
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        
+    - name: 部署状态通知
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ 部署成功！"
+        else
+          echo "❌ 部署失败！"
+        fi
