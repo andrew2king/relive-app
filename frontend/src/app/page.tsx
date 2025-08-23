@@ -304,6 +304,10 @@ const HomePage: React.FC = () => {
           </div>
           <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/70">
             <p>&copy; 2024 RELIVE. All rights reserved.</p>
+            <div className="mt-4 flex items-center justify-center gap-2 text-sm">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>自动部署已启用 · 构建版本 v1.0.0</span>
+            </div>
           </div>
         </div>
       </footer>
