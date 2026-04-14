@@ -180,24 +180,8 @@ docker-compose up -d
 
 创建 `.env` 文件：
 
-```env
-# 数据库配置
-DATABASE_URL=postgresql://username:password@localhost:5432/relive
-REDIS_URL=redis://localhost:6379
-
-# AI服务配置
-OPENAI_API_KEY=your_openai_key
-CLAUDE_API_KEY=your_claude_key
-GEMINI_API_KEY=your_gemini_key
-
-# 文件存储
-AWS_ACCESS_KEY_ID=your_aws_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret
-S3_BUCKET_NAME=relive-files
-
-# 支付配置
-STRIPE_SECRET_KEY=your_stripe_key
-WECHAT_PAY_CONFIG=your_wechat_config
+```bash
+# 环境配置详见 .env.example
 ```
 
 ## 性能监控
